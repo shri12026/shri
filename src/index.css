@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --canvas-bg: #FAF7F2;
+    --card-sky: #C8E5F7;
+    --card-mint: #CEEED9;
+    --card-yellow: #FEF3C7;
+    --card-periwinkle: #DDE5F9;
+    --card-cream: #FFFFFF;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #111827;
+    background-color: #FAF7F2;
+    overflow-x: hidden;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent iOS Safari auto-zoom on input focus */
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
+  }
+}
+
+/* FastTan / Pastel Modern Fintech Surfaces */
+.bg-pastel-sky {
+  background-color: #C8E5F7;
+}
+
+.bg-pastel-mint {
+  background-color: #CEEED9;
+}
+
+.bg-pastel-yellow {
+  background-color: #FEF3C7;
+}
+
+.bg-pastel-periwinkle {
+  background-color: #DDE5F9;
+}
+
+.bg-canvas-cream {
+  background-color: #FAF7F2;
+}
+
+/* Soft Pillowe Pill Shadows */
+.shadow-soft-pill {
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+.shadow-pastel-card {
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.04), 0 4px 12px -2px rgba(15, 23, 42, 0.02);
+}
+
+/* Custom Gold Gradient text and accents */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #996515 0%, #D4901B 50%, #8C590E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #FBD561 0%, #E5A93C 50%, #C68218 100%);
+}
+
+/* Hide scrollbar for clean carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF7F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
