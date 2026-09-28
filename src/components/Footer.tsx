@@ -210,6 +210,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenApplyModal }) => {
                   <span className="text-[10px] text-amber-300 block">Call / WhatsApp Support</span>
                 </div>
               </div>
+              <div className="flex items-start gap-2 pt-1">
+                <Mail className="w-4 h-4 text-[#E5A93C] shrink-0 mt-0.5" />
+                <a href="mailto:akashbhardwaj@shreeservicespvtltd.in" className="hover:text-white block font-mono text-[11px] break-all">
+                  akashbhardwaj@shreeservicespvtltd.in
+                </a>
+              </div>
             </div>
           </div>
         </div>

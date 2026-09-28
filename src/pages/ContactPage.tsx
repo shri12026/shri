@@ -165,8 +165,8 @@ export const ContactPage: React.FC = () => {
                   <Mail className="w-5 h-5 text-[#E5A93C] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-slate-900 block">Official Email:</span>
-                    <a href="mailto:shrifinanceservicess@gmail.com" className="hover:text-[#0A1C44] font-mono break-all">
-                      shrifinanceservicess@gmail.com
+                    <a href="mailto:akashbhardwaj@shreeservicespvtltd.in" className="hover:text-[#0A1C44] font-mono break-all">
+                      akashbhardwaj@shreeservicespvtltd.in
                     </a>
                   </div>
                 </div>

@@ -878,10 +878,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div>
                   <span className="font-bold text-white block">Official Email:</span>
                   <a
-                    href="mailto:shrifinanceservicess@gmail.com"
+                    href="mailto:akashbhardwaj@shreeservicespvtltd.in"
                     className="font-medium text-amber-200 hover:underline transition-colors break-all"
                   >
-                    shrifinanceservicess@gmail.com
+                    akashbhardwaj@shreeservicespvtltd.in
                   </a>
                 </div>
               </div>

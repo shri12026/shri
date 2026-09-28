@@ -259,7 +259,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenApplyModal }) => {
             <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-amber-300">
               <span>📞 +91 95486 34988</span>
               <span>•</span>
-              <span>✉️ shrifinanceservicess@gmail.com</span>
+              <span>✉️ akashbhardwaj@shreeservicespvtltd.in</span>
             </div>
           </div>
 
