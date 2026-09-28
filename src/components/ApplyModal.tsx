@@ -25,7 +25,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
     loanType: defaultService || 'Home Loan & Property Finance',
     amount: defaultAmount,
     employmentType: 'salaried',
-    city: 'Greater Noida West',
+    city: '',
     message: '',
   };
 
@@ -69,6 +69,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
       email: formData.email,
       loanType: formData.loanType,
       amount: formData.amount,
+      city: formData.city,
     });
 
     if (!validation.isValid) {
@@ -111,7 +112,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
         loanType: defaultService || 'Home Loan & Property Finance',
         amount: '',
         employmentType: 'salaried',
-        city: 'Greater Noida West',
+        city: '',
         message: '',
       });
 
@@ -217,6 +218,10 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
                   <div>
                     <span className="text-slate-400 block text-[10px]">Requested Amount:</span>
                     <span className="font-semibold text-emerald-700">{submittedSnapshot.amount}</span>
+                  </div>
+                  <div className="col-span-2 pt-1 border-t border-slate-100">
+                    <span className="text-slate-400 block text-[10px]">City / Location:</span>
+                    <span className="font-semibold text-slate-900">{submittedSnapshot.city}</span>
                   </div>
                 </div>
               </div>
@@ -414,6 +419,23 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
                     className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  City / Location *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.city}
+                  onChange={(e) => {
+                    setErrorMsg('');
+                    setFormData({ ...formData, city: e.target.value });
+                  }}
+                  placeholder="e.g. Delhi, Noida, Gurugram"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                />
               </div>
             </div>
 

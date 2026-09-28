@@ -1,6 +1,24 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, ShieldCheck, ArrowRight, MessageSquare, AlertCircle } from 'lucide-react';
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Send,
+  CheckCircle2,
+  ShieldCheck,
+  ArrowRight,
+  MessageSquare,
+  AlertCircle,
+  FileText,
+  Building2,
+  Navigation,
+  ExternalLink,
+  Check,
+  Car,
+  Laptop
+} from 'lucide-react';
 import { LeadFormData } from '../types';
 import { validateLoanEnquiry, sendLoanEnquiry, TARGET_EMAIL } from '../services/emailService';
 
@@ -13,6 +31,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   initialLoanType = 'Home Loan',
   initialAmount = '',
 }) => {
+  const [activeTab, setActiveTab] = useState<'details' | 'location'>('details');
   const [formData, setFormData] = useState<LeadFormData>({
     fullName: '',
     phone: '',
@@ -20,7 +39,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     loanType: initialLoanType,
     amount: initialAmount,
     employmentType: 'salaried',
-    city: 'Greater Noida West',
+    city: '',
+    pincode: '201318',
+    state: 'Uttar Pradesh (Delhi NCR)',
+    addressLine: '',
+    serviceMode: 'branch',
+    branchPreference: 'Gaur City Mall HQ (7th Floor, Sector-4)',
     message: '',
   });
 
@@ -29,6 +53,17 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const ncrCities = [
+    'Greater Noida West',
+    'Noida (Sector 1-150)',
+    'Greater Noida (Pari Chowk)',
+    'Ghaziabad / Indirapuram',
+    'Delhi NCR',
+    'Gurugram (Gurgaon)',
+    'Faridabad',
+    'Other / Pan-India',
+  ];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -51,10 +86,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       email: formData.email,
       loanType: formData.loanType,
       amount: formData.amount,
+      city: formData.city,
     });
 
     if (!validation.isValid) {
       setErrorMsg(validation.error || 'Please fill in all required fields.');
+      // Switch back to details tab if basic info is missing
+      setActiveTab('details');
       return;
     }
 
@@ -68,6 +106,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         loanType: formData.loanType,
         amount: formData.amount,
         city: formData.city,
+        pincode: formData.pincode,
+        state: formData.state,
+        addressLine: formData.addressLine,
+        serviceMode: formData.serviceMode,
+        branchPreference: formData.branchPreference,
         message: formData.message,
       });
 
@@ -88,7 +131,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         loanType: initialLoanType,
         amount: '',
         employmentType: 'salaried',
-        city: 'Greater Noida West',
+        city: '',
+        pincode: '201318',
+        state: 'Uttar Pradesh (Delhi NCR)',
+        addressLine: '',
+        serviceMode: 'branch',
+        branchPreference: 'Gaur City Mall HQ (7th Floor, Sector-4)',
         message: '',
       });
 
@@ -139,7 +187,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           <div className="lg:col-span-7 bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-[#E5A93C]/30 relative">
             
             {isSubmitted ? (
-              <div className="text-center py-12 space-y-5 animate-in fade-in zoom-in duration-300">
+              <div className="text-center py-10 space-y-5 animate-in fade-in zoom-in duration-300">
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-md">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
@@ -150,13 +198,56 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   Thank you, <span className="font-semibold text-slate-900">{submittedSnapshot?.fullName || 'Valued Applicant'}</span>. A Dedicated Relationship Manager from our Gaur City Mall desk has been assigned to your file and will contact you at{' '}
                   <span className="font-semibold text-[#0A1C44]">{submittedSnapshot?.phone}</span>.
                 </p>
-                <div className="p-4 rounded-xl bg-[#0A1C44]/5 border border-[#0A1C44]/15 text-xs text-[#0A1C44] max-w-md mx-auto font-medium">
-                  Reference: SSL-NCR-{Math.floor(100000 + Math.random() * 900000)} · Document Verification Checklist dispatched via SMS & Email.
+
+                {submittedSnapshot && (
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 text-left text-xs space-y-2 max-w-md mx-auto">
+                    <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">
+                      Submitted Enquiry & Location Summary
+                    </div>
+                    <div className="grid grid-cols-2 gap-2.5 pt-1 text-slate-700">
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">Full Name:</span>
+                        <span className="font-semibold text-slate-900">{submittedSnapshot.fullName}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">Mobile:</span>
+                        <span className="font-semibold text-slate-900">{submittedSnapshot.phone}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">Product:</span>
+                        <span className="font-semibold text-slate-900">{submittedSnapshot.loanType}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">Amount:</span>
+                        <span className="font-semibold text-emerald-700">{submittedSnapshot.amount}</span>
+                      </div>
+                      <div className="col-span-2 pt-1 border-t border-slate-100">
+                        <span className="text-slate-400 block text-[10px]">Consultation Mode & Location:</span>
+                        <span className="font-semibold text-[#0A1C44] block">
+                          {submittedSnapshot.serviceMode === 'branch'
+                            ? '🏢 In-Person Visit at Gaur City Mall Office (7th Floor)'
+                            : submittedSnapshot.serviceMode === 'doorstep'
+                            ? '🚗 Doorstep Document Pickup (Delhi NCR)'
+                            : '💻 100% Digital / Online Sanction'}
+                        </span>
+                        <span className="text-slate-600 text-[11px]">
+                          {submittedSnapshot.city}
+                          {submittedSnapshot.pincode ? ` · PIN: ${submittedSnapshot.pincode}` : ''}
+                          {submittedSnapshot.addressLine ? ` · ${submittedSnapshot.addressLine}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-3.5 rounded-xl bg-[#0A1C44]/5 border border-[#0A1C44]/15 text-xs text-[#0A1C44] max-w-md mx-auto font-medium">
+                  Reference: SSL-NCR-{Math.floor(100000 + Math.random() * 900000)} · Direct Senior Advisor Line: +91 95486 34988
                 </div>
-                <div className="pt-4">
+                <div className="pt-2">
                   <button
                     onClick={() => {
                       setIsSubmitted(false);
+                      setActiveTab('details');
                       setFormData({
                         fullName: '',
                         phone: '',
@@ -164,223 +255,571 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         loanType: 'Home Loan',
                         amount: '',
                         employmentType: 'salaried',
-                        city: 'Greater Noida West',
+                        city: '',
+                        pincode: '201318',
+                        state: 'Uttar Pradesh (Delhi NCR)',
+                        addressLine: '',
+                        serviceMode: 'branch',
+                        branchPreference: 'Gaur City Mall HQ (7th Floor, Sector-4)',
                         message: '',
                       });
                     }}
-                    className="px-6 py-2.5 rounded-xl text-xs font-bold text-[#0A1C44] bg-slate-100 hover:bg-slate-200 transition-colors"
+                    className="px-6 py-2.5 rounded-xl text-xs font-bold text-[#0A1C44] bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
                   >
                     Submit Another Application
                   </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-1">
-                  <h3 className="text-xl sm:text-2xl font-bold font-serif-display text-[#0A1C44]">
-                    Loan Consultation Request
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    No impact on your credit score. Zero upfront consultant fees.
-                  </p>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold font-serif-display text-[#0A1C44]">
+                      Loan Consultation Request
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Zero upfront consultant fees · Direct Senior Lending Manager Review
+                    </p>
+                  </div>
+                  <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200 shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Desk Open Today</span>
+                  </div>
+                </div>
+
+                {/* Form Tabs: Loan Details vs Location Tab */}
+                <div className="flex items-center p-1 bg-slate-100/90 rounded-2xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('details')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                      activeTab === 'details'
+                        ? 'bg-white text-[#0A1C44] shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4 text-[#E5A93C]" />
+                    <span>1. Loan Details</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('location')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                      activeTab === 'location'
+                        ? 'bg-white text-[#0A1C44] shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    <span>2. Location & Branch</span>
+                    <span className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[10px] font-extrabold uppercase rounded bg-emerald-100 text-emerald-800">
+                      Gaur City HQ
+                    </span>
+                  </button>
                 </div>
 
                 {errorMsg && (
-                  <div className="p-3 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200">
-                    {errorMsg}
+                  <div className="p-3 rounded-xl bg-red-50 text-red-700 text-xs border border-red-200 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Full Name */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      placeholder="e.g. Ramesh Kumar"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
-                    />
-                  </div>
+                {/* TAB 1: Loan & Personal Details */}
+                {activeTab === 'details' && (
+                  <div className="space-y-4 animate-in fade-in duration-200">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* Full Name */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          value={formData.fullName}
+                          onChange={handleChange}
+                          placeholder="e.g. Ramesh Kumar"
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                        />
+                      </div>
 
-                  {/* Phone */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Mobile Number *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold">
-                        +91
-                      </span>
+                      {/* Phone */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Mobile Number *
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="95486 34988"
+                            required
+                            className="w-full pl-11 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* Email */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="name@gmail.com"
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                        />
+                      </div>
+
+                      {/* Product / Service */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Product / Service Requested *
+                        </label>
+                        <select
+                          name="loanType"
+                          value={formData.loanType}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44] bg-white font-medium"
+                        >
+                          <optgroup label="Loan Services (17 Types)">
+                            <option value="Home Loan">Home Loan</option>
+                            <option value="Personal Loan">Personal Loan</option>
+                            <option value="Business Loan">Business Loan</option>
+                            <option value="Loan Against Property (LAP)">Loan Against Property (LAP)</option>
+                            <option value="Gold Loan">Gold Loan</option>
+                            <option value="Vehicle Loan (Car, Bike, CV)">Vehicle Loan (Car, Bike, CV)</option>
+                            <option value="Education Loan">Education Loan</option>
+                            <option value="MSME Loan">MSME Loan</option>
+                            <option value="MUDRA Loan (Shishu, Kishore & Tarun)">MUDRA Loan (Shishu, Kishore & Tarun)</option>
+                            <option value="Working Capital Loan (OD/CC)">Working Capital Loan (OD/CC)</option>
+                            <option value="PMEGP Loan">PMEGP Loan (Govt Subsidy)</option>
+                            <option value="Machinery Loan">Machinery Loan</option>
+                            <option value="Tractor Loan">Tractor Loan</option>
+                            <option value="Construction Equipment Loan">Construction Equipment Loan</option>
+                            <option value="Startup Loan">Startup Loan</option>
+                            <option value="Mortgage Loan">Mortgage Loan</option>
+                            <option value="Project Finance">Project Finance</option>
+                          </optgroup>
+
+                          <optgroup label="Credit Card Services (7 Types)">
+                            <option value="Lifetime Free Credit Card">Lifetime Free Credit Card</option>
+                            <option value="Premium Credit Card">Premium Credit Card</option>
+                            <option value="Business Credit Card">Business Credit Card</option>
+                            <option value="Cashback Credit Card">Cashback Credit Card</option>
+                            <option value="Fuel Credit Card">Fuel Credit Card</option>
+                            <option value="Travel Credit Card">Travel Credit Card</option>
+                            <option value="Shopping Credit Card">Shopping Credit Card</option>
+                          </optgroup>
+
+                          <optgroup label="Insurance Services (8 Plans)">
+                            <option value="Life Insurance">Life Insurance</option>
+                            <option value="Health Insurance">Health Insurance</option>
+                            <option value="Motor Insurance (Car, Bike, CV)">Motor Insurance (Car, Bike, CV)</option>
+                            <option value="Term Insurance">Term Insurance</option>
+                            <option value="Personal Accident Insurance">Personal Accident Insurance</option>
+                            <option value="Travel Insurance">Travel Insurance</option>
+                            <option value="Home Insurance">Home Insurance</option>
+                            <option value="Commercial Insurance">Commercial Insurance</option>
+                          </optgroup>
+
+                          <optgroup label="Business Services (8 Registrations)">
+                            <option value="GST Registration">GST Registration</option>
+                            <option value="GST Filing">GST Filing</option>
+                            <option value="Udyam Registration">Udyam Registration</option>
+                            <option value="PAN / TAN Services">PAN / TAN Services</option>
+                            <option value="FSSAI Registration">FSSAI Registration</option>
+                            <option value="Digital Signature (DSC)">Digital Signature (DSC)</option>
+                            <option value="Trade License">Trade License</option>
+                            <option value="Shop & Establishment Registration">Shop & Establishment Registration</option>
+                          </optgroup>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* Approx Loan Amount */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Approx. Loan Amount (₹) *
+                        </label>
+                        <input
+                          type="text"
+                          name="amount"
+                          value={formData.amount}
+                          onChange={handleChange}
+                          placeholder="e.g. 45,00,000"
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                        />
+                      </div>
+
+                      {/* Employment Type */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Employment Type *
+                        </label>
+                        <select
+                          name="employmentType"
+                          value={formData.employmentType}
+                          onChange={handleChange}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44] bg-white font-medium"
+                        >
+                          <option value="salaried">Salaried (Corporate / Govt / MNC)</option>
+                          <option value="self-employed">Self-Employed Professional (Doctor, CA, etc.)</option>
+                          <option value="business">Business Owner / Trader / Manufacturer</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* City / Location */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        City / Location *
+                      </label>
                       <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
+                        type="text"
+                        name="city"
+                        value={formData.city}
                         onChange={handleChange}
-                        placeholder="95486 34988"
+                        placeholder="e.g. Delhi, Noida, Gurugram"
                         required
-                        className="w-full pl-11 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
                       />
                     </div>
+
+                    {/* Quick Location Preview Chip */}
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2 text-xs text-slate-700">
+                        <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <div>
+                          <span className="font-semibold text-slate-900">Meeting / Branch Preference: </span>
+                          <span className="text-slate-600">
+                            {formData.serviceMode === 'branch'
+                              ? '🏢 In-Person at Gaur City Mall (7th Floor)'
+                              : formData.serviceMode === 'doorstep'
+                              ? '🚗 Doorstep Visit'
+                              : '💻 100% Digital'} · {formData.city}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('location')}
+                        className="text-xs font-bold text-[#0A1C44] hover:text-[#E5A93C] inline-flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                      >
+                        <span>Change Location / Tab</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Additional notes */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Remarks / Property Details (Optional)
+                      </label>
+                      <textarea
+                        name="message"
+                        rows={2}
+                        value={formData.message}
+                        onChange={handleChange}
+                        placeholder="Provide developer name, loan tenure preference, or existing loan balance..."
+                        className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                      />
+                    </div>
+
+                    {/* Buttons row */}
+                    <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('location')}
+                        className="w-full sm:w-auto px-5 py-3 rounded-xl border border-[#0A1C44]/20 hover:border-[#0A1C44] text-xs font-bold text-[#0A1C44] bg-[#0A1C44]/5 hover:bg-[#0A1C44]/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <MapPin className="w-4 h-4 text-emerald-600" />
+                        <span>Go to Location Tab &rarr;</span>
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 w-full py-3.5 px-6 rounded-xl text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#E5A93C]/25 cursor-pointer disabled:opacity-70"
+                      >
+                        {isSubmitting ? (
+                          <span>Submitting Application...</span>
+                        ) : (
+                          <>
+                            <span>Submit Application for Instant Review</span>
+                            <Send className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Email */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="name@gmail.com"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
-                    />
+                {/* TAB 2: Location & Branch Details */}
+                {activeTab === 'location' && (
+                  <div className="space-y-4 animate-in fade-in duration-200">
+                    
+                    {/* Consultation & Meeting Mode */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                        Choose How You Would Like to Connect *
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        {/* Option 1: Branch Office */}
+                        <div
+                          onClick={() => setFormData({ ...formData, serviceMode: 'branch' })}
+                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                            formData.serviceMode === 'branch'
+                              ? 'border-[#0A1C44] bg-[#0A1C44]/5 ring-2 ring-[#0A1C44]'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="w-8 h-8 rounded-xl bg-[#0A1C44] text-[#E5A93C] flex items-center justify-center">
+                              <Building2 className="w-4 h-4" />
+                            </div>
+                            {formData.serviceMode === 'branch' && (
+                              <span className="w-5 h-5 rounded-full bg-[#0A1C44] text-white flex items-center justify-center text-xs">
+                                <Check className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-bold text-xs sm:text-sm text-[#0A1C44]">
+                              Visit Gaur City Office
+                            </div>
+                            <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                              Unit 7126, 7th Floor, Gaur City Mall
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Option 2: Doorstep Visit */}
+                        <div
+                          onClick={() => setFormData({ ...formData, serviceMode: 'doorstep' })}
+                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                            formData.serviceMode === 'doorstep'
+                              ? 'border-[#0A1C44] bg-[#0A1C44]/5 ring-2 ring-[#0A1C44]'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center">
+                              <Car className="w-4 h-4" />
+                            </div>
+                            {formData.serviceMode === 'doorstep' && (
+                              <span className="w-5 h-5 rounded-full bg-[#0A1C44] text-white flex items-center justify-center text-xs">
+                                <Check className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-bold text-xs sm:text-sm text-[#0A1C44]">
+                              Doorstep Executive
+                            </div>
+                            <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                              Home or office visit across Delhi NCR
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Option 3: Online */}
+                        <div
+                          onClick={() => setFormData({ ...formData, serviceMode: 'online' })}
+                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                            formData.serviceMode === 'online'
+                              ? 'border-[#0A1C44] bg-[#0A1C44]/5 ring-2 ring-[#0A1C44]'
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center">
+                              <Laptop className="w-4 h-4" />
+                            </div>
+                            {formData.serviceMode === 'online' && (
+                              <span className="w-5 h-5 rounded-full bg-[#0A1C44] text-white flex items-center justify-center text-xs">
+                                <Check className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-bold text-xs sm:text-sm text-[#0A1C44]">
+                              100% Digital / Remote
+                            </div>
+                            <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                              Instant sanction via WhatsApp / Phone
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick City Chips */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                        Select City / NCR Region *
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {ncrCities.map((cityName) => (
+                          <button
+                            key={cityName}
+                            type="button"
+                            onClick={() => {
+                              setErrorMsg('');
+                              setFormData({
+                                ...formData,
+                                city: cityName === 'Other / Pan-India' ? '' : cityName,
+                              });
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                              formData.city === cityName || (cityName === 'Other / Pan-India' && !ncrCities.slice(0, 7).includes(formData.city))
+                                ? 'bg-[#0A1C44] text-[#E5A93C] border-[#0A1C44] shadow-sm'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                            }`}
+                          >
+                            {cityName}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* City Input */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          City / District Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleChange}
+                          placeholder="e.g. Greater Noida West"
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                        />
+                      </div>
+
+                      {/* PIN Code */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                          Area PIN Code
+                        </label>
+                        <input
+                          type="text"
+                          name="pincode"
+                          maxLength={6}
+                          value={formData.pincode || ''}
+                          onChange={handleChange}
+                          placeholder="e.g. 201318"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Address Line / Landmark */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Locality / Society / Nearest Landmark (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        name="addressLine"
+                        value={formData.addressLine || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. Gaur City 2, Cherry County, Sector 4, TechZone 4..."
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
+                      />
+                    </div>
+
+                    {/* Branch Office Details Card */}
+                    <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2.5 text-xs text-amber-950">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 font-bold text-[#0A1C44]">
+                          <Building2 className="w-4 h-4 text-[#E5A93C]" />
+                          <span>Shree Services Corporate Headquarters</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E5A93C]/20 text-[#0A1C44]">
+                          Greater Noida West
+                        </span>
+                      </div>
+                      <div className="text-slate-700 space-y-1">
+                        <p>
+                          <strong>Address:</strong> Unit 7126, 7th Floor, Office Space, Gaur City Mall, Sector-IV, Greater Noida West, UP 201318
+                        </p>
+                        <p>
+                          <strong>Timing:</strong> Monday to Saturday: 9:30 AM – 7:30 PM (Sunday by Prior Appointment)
+                        </p>
+                        <p className="text-slate-500 text-[11px]">
+                          <strong>Metro Route:</strong> 10 mins from Noida Electronic City Metro Station (Blue Line) via Gaur Chowk.
+                        </p>
+                      </div>
+                      <div className="pt-1 flex flex-wrap items-center gap-2">
+                        <a
+                          href="https://maps.google.com/?q=Gaur+City+Mall+Greater+Noida+West"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-amber-300 font-bold text-[#0A1C44] hover:bg-amber-100 transition-colors shadow-2xs"
+                        >
+                          <Navigation className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Get Directions in Google Maps</span>
+                          <ExternalLink className="w-3 h-3 opacity-60" />
+                        </a>
+                        <a
+                          href="tel:+919548634988"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A1C44] text-white font-bold hover:bg-[#060F26] transition-colors"
+                        >
+                          <Phone className="w-3 h-3 text-[#E5A93C]" />
+                          <span>Call Branch: +91 95486 34988</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Action buttons on Location tab */}
+                    <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('details')}
+                        className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
+                      >
+                        &larr; Back to Loan Details
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 w-full py-3.5 px-6 rounded-xl text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#E5A93C]/25 cursor-pointer disabled:opacity-70"
+                      >
+                        {isSubmitting ? (
+                          <span>Submitting Application...</span>
+                        ) : (
+                          <>
+                            <span>Submit Application with Location Details</span>
+                            <Send className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+
                   </div>
-
-                  {/* Loan Type */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Product / Service Requested *
-                    </label>
-                    <select
-                      name="loanType"
-                      value={formData.loanType}
-                      onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44] bg-white font-medium"
-                    >
-                      <optgroup label="Loan Services (17 Types)">
-                        <option value="Home Loan">Home Loan</option>
-                        <option value="Personal Loan">Personal Loan</option>
-                        <option value="Business Loan">Business Loan</option>
-                        <option value="Loan Against Property (LAP)">Loan Against Property (LAP)</option>
-                        <option value="Gold Loan">Gold Loan</option>
-                        <option value="Vehicle Loan (Car, Bike, CV)">Vehicle Loan (Car, Bike, CV)</option>
-                        <option value="Education Loan">Education Loan</option>
-                        <option value="MSME Loan">MSME Loan</option>
-                        <option value="MUDRA Loan (Shishu, Kishore & Tarun)">MUDRA Loan (Shishu, Kishore & Tarun)</option>
-                        <option value="Working Capital Loan (OD/CC)">Working Capital Loan (OD/CC)</option>
-                        <option value="PMEGP Loan">PMEGP Loan (Govt Subsidy)</option>
-                        <option value="Machinery Loan">Machinery Loan</option>
-                        <option value="Tractor Loan">Tractor Loan</option>
-                        <option value="Construction Equipment Loan">Construction Equipment Loan</option>
-                        <option value="Startup Loan">Startup Loan</option>
-                        <option value="Mortgage Loan">Mortgage Loan</option>
-                        <option value="Project Finance">Project Finance</option>
-                      </optgroup>
-
-                      <optgroup label="Credit Card Services (7 Types)">
-                        <option value="Lifetime Free Credit Card">Lifetime Free Credit Card</option>
-                        <option value="Premium Credit Card">Premium Credit Card</option>
-                        <option value="Business Credit Card">Business Credit Card</option>
-                        <option value="Cashback Credit Card">Cashback Credit Card</option>
-                        <option value="Fuel Credit Card">Fuel Credit Card</option>
-                        <option value="Travel Credit Card">Travel Credit Card</option>
-                        <option value="Shopping Credit Card">Shopping Credit Card</option>
-                      </optgroup>
-
-                      <optgroup label="Insurance Services (8 Plans)">
-                        <option value="Life Insurance">Life Insurance</option>
-                        <option value="Health Insurance">Health Insurance</option>
-                        <option value="Motor Insurance (Car, Bike, CV)">Motor Insurance (Car, Bike, CV)</option>
-                        <option value="Term Insurance">Term Insurance</option>
-                        <option value="Personal Accident Insurance">Personal Accident Insurance</option>
-                        <option value="Travel Insurance">Travel Insurance</option>
-                        <option value="Home Insurance">Home Insurance</option>
-                        <option value="Commercial Insurance">Commercial Insurance</option>
-                      </optgroup>
-
-                      <optgroup label="Business Services (8 Registrations)">
-                        <option value="GST Registration">GST Registration</option>
-                        <option value="GST Filing">GST Filing</option>
-                        <option value="Udyam Registration">Udyam Registration</option>
-                        <option value="PAN / TAN Services">PAN / TAN Services</option>
-                        <option value="FSSAI Registration">FSSAI Registration</option>
-                        <option value="Digital Signature (DSC)">Digital Signature (DSC)</option>
-                        <option value="Trade License">Trade License</option>
-                        <option value="Shop & Establishment Registration">Shop & Establishment Registration</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Required Amount */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      Approx. Loan Amount (₹) *
-                    </label>
-                    <input
-                      type="text"
-                      name="amount"
-                      value={formData.amount}
-                      onChange={handleChange}
-                      placeholder="e.g. 45,00,000"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
-                    />
-                  </div>
-
-                  {/* City */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      City / Area *
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="e.g. Greater Noida West"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
-                    />
-                  </div>
-                </div>
-
-                {/* Additional notes */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Remarks / Property Details (Optional)
-                  </label>
-                  <textarea
-                    name="message"
-                    rows={2}
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Provide developer name, loan tenure preference, or existing loan balance..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0A1C44]"
-                  />
-                </div>
-
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3.5 px-6 rounded-xl text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#E5A93C]/25 cursor-pointer disabled:opacity-70"
-                >
-                  {isSubmitting ? (
-                    <span>Submitting Application...</span>
-                  ) : (
-                    <>
-                      <span>Submit Application for Instant Review</span>
-                      <Send className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                )}
 
                 <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500 pt-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>256-Bit SSL Encrypted. Confidentiality guaranteed.</span>
+                  <span>256-Bit SSL Encrypted. Direct submission to Senior Officer Akash Bhardwaj.</span>
                 </div>
               </form>
             )}

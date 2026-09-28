@@ -22,9 +22,11 @@ import {
   Building2,
   HelpCircle,
   Calculator,
-  Send
+  Send,
+  AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { sendLoanEnquiry } from '../services/emailService';
 
 interface ServiceDetailPageProps {
   onOpenApplyModal: (serviceName?: string, amount?: string) => void;
@@ -54,6 +56,8 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ onOpenAppl
   const [inquiryPhone, setInquiryPhone] = useState('');
   const [inquiryCity, setInquiryCity] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [inquiryError, setInquiryError] = useState('');
+  const [isSubmittingInquiry, setIsSubmittingInquiry] = useState(false);
 
   // FAQ accordion state
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -68,11 +72,46 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ onOpenAppl
   const totalRepayment = emi * totalMonths;
   const totalInterest = totalRepayment - calcAmount;
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
+  const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inquiryName || !inquiryPhone) return;
-    setFormSubmitted(true);
-    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    setInquiryError('');
+
+    if (!inquiryName.trim() || inquiryName.trim().length < 2) {
+      setInquiryError('Please enter your full name (minimum 2 characters).');
+      return;
+    }
+    const cleanPhone = inquiryPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setInquiryError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!inquiryCity.trim()) {
+      setInquiryError('Please enter your City / Location.');
+      return;
+    }
+
+    setIsSubmittingInquiry(true);
+    try {
+      await sendLoanEnquiry({
+        fullName: inquiryName.trim(),
+        phone: cleanPhone,
+        email: 'info@shreeservicespvtltd.in',
+        loanType: loan.title,
+        amount: `₹${calcAmount.toLocaleString('en-IN')}`,
+        city: inquiryCity.trim(),
+        message: `Quick Pre-Approval from ${loan.title} page. Tenure: ${calcTenure} yrs.`,
+      });
+
+      setInquiryName('');
+      setInquiryPhone('');
+      setInquiryCity('');
+      setIsSubmittingInquiry(false);
+      setFormSubmitted(true);
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    } catch {
+      setIsSubmittingInquiry(false);
+      setInquiryError('Something went wrong, please try again.');
+    }
   };
 
   const getIcon = (name: string) => {
@@ -500,37 +539,56 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ onOpenAppl
                     <span className="text-xs font-bold text-slate-800 block">
                       Get Pre-Approved for {loan.title}
                     </span>
+
+                    {inquiryError && (
+                      <div className="p-2.5 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200 flex items-start gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+                        <span>{inquiryError}</span>
+                      </div>
+                    )}
+
                     <input
                       type="text"
-                      placeholder="Your Full Name"
+                      placeholder="Your Full Name *"
                       required
                       value={inquiryName}
-                      onChange={(e) => setInquiryName(e.target.value)}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryName(e.target.value);
+                      }}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
                     />
                     <input
                       type="tel"
-                      placeholder="10-Digit Mobile Number"
+                      placeholder="10-Digit Mobile Number *"
                       required
                       pattern="[0-9]{10}"
                       value={inquiryPhone}
-                      onChange={(e) => setInquiryPhone(e.target.value)}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryPhone(e.target.value);
+                      }}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
                     />
                     <input
                       type="text"
-                      placeholder="City (e.g. Greater Noida West)"
+                      placeholder="City / Location * (e.g. Delhi, Noida, Gurugram)"
+                      required
                       value={inquiryCity}
-                      onChange={(e) => setInquiryCity(e.target.value)}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryCity(e.target.value);
+                      }}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
                     />
 
                     <button
                       type="submit"
-                      className="w-full py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      disabled={isSubmittingInquiry}
+                      className="w-full py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-70"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>Request Instant Bank Call</span>
+                      <span>{isSubmittingInquiry ? 'Submitting...' : 'Request Instant Bank Call'}</span>
                     </button>
                   </form>
                 ) : (

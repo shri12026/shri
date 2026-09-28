@@ -17,9 +17,11 @@ import {
   Clock,
   Send,
   AlertTriangle,
+  AlertCircle,
   Info
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { sendLoanEnquiry } from '../services/emailService';
 
 interface GovtSchemeDetailPageProps {
   onOpenApplyModal: (schemeName?: string) => void;
@@ -38,16 +40,55 @@ export const GovtSchemeDetailPage: React.FC<GovtSchemeDetailPageProps> = ({ onOp
   const [inquiryName, setInquiryName] = useState('');
   const [inquiryPhone, setInquiryPhone] = useState('');
   const [inquiryBusiness, setInquiryBusiness] = useState('');
+  const [inquiryCity, setInquiryCity] = useState('');
+  const [inquiryError, setInquiryError] = useState('');
+  const [isSubmittingInquiry, setIsSubmittingInquiry] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   // FAQ state
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
+  const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inquiryName || !inquiryPhone) return;
-    setFormSubmitted(true);
-    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    setInquiryError('');
+
+    if (!inquiryName.trim() || inquiryName.trim().length < 2) {
+      setInquiryError('Please enter your full name (minimum 2 characters).');
+      return;
+    }
+    const cleanPhone = inquiryPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setInquiryError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!inquiryCity.trim()) {
+      setInquiryError('Please enter your City / Location.');
+      return;
+    }
+
+    setIsSubmittingInquiry(true);
+    try {
+      await sendLoanEnquiry({
+        fullName: inquiryName.trim(),
+        phone: cleanPhone,
+        email: 'info@shreeservicespvtltd.in',
+        loanType: scheme.name,
+        amount: scheme.maxAmount,
+        city: inquiryCity.trim(),
+        message: `Government Scheme evaluation for ${scheme.name}. Activity: ${inquiryBusiness || 'N/A'}`,
+      });
+
+      setInquiryName('');
+      setInquiryPhone('');
+      setInquiryBusiness('');
+      setInquiryCity('');
+      setIsSubmittingInquiry(false);
+      setFormSubmitted(true);
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+    } catch {
+      setIsSubmittingInquiry(false);
+      setInquiryError('Something went wrong, please try again.');
+    }
   };
 
   return (
@@ -370,27 +411,40 @@ export const GovtSchemeDetailPage: React.FC<GovtSchemeDetailPageProps> = ({ onOp
 
               {!formSubmitted ? (
                 <form onSubmit={handleInquirySubmit} className="space-y-3.5">
+                  {inquiryError && (
+                    <div className="p-2.5 rounded-lg bg-red-50 text-red-700 text-xs border border-red-200 flex items-start gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+                      <span>{inquiryError}</span>
+                    </div>
+                  )}
+
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">Full Name</label>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">Full Name *</label>
                     <input
                       type="text"
                       required
                       placeholder="Applicant Name"
                       value={inquiryName}
-                      onChange={(e) => setInquiryName(e.target.value)}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryName(e.target.value);
+                      }}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">Phone Number</label>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">Phone Number *</label>
                     <input
                       type="tel"
                       required
                       pattern="[0-9]{10}"
                       placeholder="10-digit mobile"
                       value={inquiryPhone}
-                      onChange={(e) => setInquiryPhone(e.target.value)}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryPhone(e.target.value);
+                      }}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
                     />
                   </div>
@@ -401,17 +455,36 @@ export const GovtSchemeDetailPage: React.FC<GovtSchemeDetailPageProps> = ({ onOp
                       type="text"
                       placeholder="e.g. Food Processing, Textile, IT..."
                       value={inquiryBusiness}
-                      onChange={(e) => setInquiryBusiness(e.target.value)}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryBusiness(e.target.value);
+                      }}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">City / Location *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Delhi, Noida, Gurugram"
+                      value={inquiryCity}
+                      onChange={(e) => {
+                        setInquiryError('');
+                        setInquiryCity(e.target.value);
+                      }}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#E5A93C]"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl text-xs sm:text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    disabled={isSubmittingInquiry}
+                    className="w-full py-3 rounded-xl text-xs sm:text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-70"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>Submit for Scheme Evaluation</span>
+                    <span>{isSubmittingInquiry ? 'Submitting Evaluation...' : 'Submit for Scheme Evaluation'}</span>
                   </button>
                 </form>
               ) : (

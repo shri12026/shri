@@ -11,10 +11,12 @@ import {
   Navigation,
   MessageSquare,
   ShieldCheck,
-  Calendar
+  Calendar,
+  AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ShreeLogo } from '../components/ShreeLogo';
+import { sendLoanEnquiry } from '../services/emailService';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -24,16 +26,66 @@ export const ContactPage: React.FC = () => {
     serviceInterest: 'Home Loan',
     loanAmount: '₹25,00,000 - ₹50,00,000',
     preferredTime: 'Morning (10 AM - 1 PM)',
+    city: '',
     notes: '',
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submittedSnapshot, setSubmittedSnapshot] = useState<typeof formData | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.phone) return;
-    setSubmitted(true);
-    confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 }, colors: ['#0A1C44', '#E5A93C', '#10B981'] });
+    setErrorMsg('');
+
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
+      setErrorMsg('Please enter your full name (minimum 2 characters).');
+      return;
+    }
+    const cleanPhone = formData.phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setErrorMsg('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!formData.city.trim()) {
+      setErrorMsg('Please enter your City / Location.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await sendLoanEnquiry({
+        fullName: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        loanType: formData.serviceInterest,
+        amount: formData.loanAmount,
+        city: formData.city,
+        message: `Preferred Callback: ${formData.preferredTime}. Notes: ${formData.notes || 'None'}`,
+      });
+
+      setSubmittedSnapshot({ ...formData });
+      setSubmitted(true);
+      setIsSubmitting(false);
+
+      // Clear the form fields
+      setFormData({
+        fullName: '',
+        phone: '',
+        email: '',
+        serviceInterest: 'Home Loan',
+        loanAmount: '₹25,00,000 - ₹50,00,000',
+        preferredTime: 'Morning (10 AM - 1 PM)',
+        city: '',
+        notes: '',
+      });
+
+      confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 }, colors: ['#0A1C44', '#E5A93C', '#10B981'] });
+    } catch {
+      setIsSubmitting(false);
+      setErrorMsg('Something went wrong, please try again.');
+    }
   };
 
   return (
@@ -172,6 +224,13 @@ export const ContactPage: React.FC = () => {
 
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {errorMsg && (
+                  <div className="p-3 rounded-xl bg-red-50 text-red-700 text-xs border border-red-200 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-slate-700 block mb-1">Full Name *</label>
@@ -180,7 +239,10 @@ export const ContactPage: React.FC = () => {
                       required
                       placeholder="e.g. Ramesh Verma"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      onChange={(e) => {
+                        setErrorMsg('');
+                        setFormData({ ...formData, fullName: e.target.value });
+                      }}
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-[#E5A93C] focus:ring-1 focus:ring-[#E5A93C]"
                     />
                   </div>
@@ -193,7 +255,10 @@ export const ContactPage: React.FC = () => {
                       pattern="[0-9]{10}"
                       placeholder="10-digit mobile"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) => {
+                        setErrorMsg('');
+                        setFormData({ ...formData, phone: e.target.value });
+                      }}
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-[#E5A93C] focus:ring-1 focus:ring-[#E5A93C]"
                     />
                   </div>
@@ -206,7 +271,10 @@ export const ContactPage: React.FC = () => {
                       type="email"
                       placeholder="name@email.com"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) => {
+                        setErrorMsg('');
+                        setFormData({ ...formData, email: e.target.value });
+                      }}
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-[#E5A93C] focus:ring-1 focus:ring-[#E5A93C]"
                     />
                   </div>
@@ -305,6 +373,24 @@ export const ContactPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Full-width City / Location input after Product and Amount */}
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">
+                    City / Location *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Delhi, Noida, Gurugram"
+                    value={formData.city}
+                    onChange={(e) => {
+                      setErrorMsg('');
+                      setFormData({ ...formData, city: e.target.value });
+                    }}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-[#E5A93C] focus:ring-1 focus:ring-[#E5A93C]"
+                  />
+                </div>
+
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1">Any Specific Requirement / Property Details</label>
                   <textarea
@@ -318,10 +404,11 @@ export const ContactPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl text-xs sm:text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 rounded-xl text-xs sm:text-sm font-extrabold text-[#060F26] bg-gold-gradient hover:brightness-105 shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Submit Inquiry to Loan Officer</span>
+                  <span>{isSubmitting ? 'Submitting Inquiry...' : 'Submit Inquiry to Loan Officer'}</span>
                 </button>
               </form>
             ) : (
@@ -331,12 +418,15 @@ export const ContactPage: React.FC = () => {
                   Appointment Request Confirmed!
                 </h3>
                 <p className="text-xs sm:text-sm text-emerald-800 max-w-md mx-auto leading-relaxed">
-                  Thank you, <strong>{formData.fullName}</strong>. A dedicated relationship manager from our Gaur City Mall desk will contact you at <strong>{formData.phone}</strong> during {formData.preferredTime}.
+                  Thank you, <strong>{submittedSnapshot?.fullName}</strong>. A dedicated relationship manager from our Gaur City Mall desk will contact you at <strong>{submittedSnapshot?.phone}</strong> ({submittedSnapshot?.city}) during {submittedSnapshot?.preferredTime}.
                 </p>
                 <div className="pt-2">
                   <button
-                    onClick={() => setSubmitted(false)}
-                    className="text-xs font-semibold text-emerald-700 underline"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setErrorMsg('');
+                    }}
+                    className="text-xs font-semibold text-emerald-700 underline cursor-pointer"
                   >
                     Submit another enquiry
                   </button>

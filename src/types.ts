@@ -51,5 +51,10 @@ export interface LeadFormData {
   amount: string;
   employmentType: 'salaried' | 'self-employed' | 'business';
   city: string;
+  pincode?: string;
+  state?: string;
+  addressLine?: string;
+  serviceMode?: 'branch' | 'doorstep' | 'online';
+  branchPreference?: string;
   message?: string;
 }

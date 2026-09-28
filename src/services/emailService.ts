@@ -7,6 +7,11 @@ export interface LoanEnquiryPayload {
   loanType: string;
   amount: string;
   city?: string;
+  pincode?: string;
+  state?: string;
+  addressLine?: string;
+  serviceMode?: 'branch' | 'doorstep' | 'online';
+  branchPreference?: string;
   message?: string;
 }
 
@@ -50,12 +55,18 @@ export function validateLoanEnquiry(data: LoanEnquiryPayload): { isValid: boolea
     return { isValid: false, error: 'Please specify the required loan amount.' };
   }
 
+  // 6. City / Location validation
+  const trimmedCity = (data.city || '').trim();
+  if (!trimmedCity) {
+    return { isValid: false, error: 'Please enter your City / Location.' };
+  }
+
   return { isValid: true };
 }
 
 /**
  * Sends loan enquiry details to akashbhardwaj@shreeservicespvtltd.in
- * Supports EmailJS, Formspree, and direct FormSubmit endpoints with automatic failover.
+ * Supports Web3Forms, EmailJS, Formspree, and direct FormSubmit endpoints with automatic failover.
  */
 export async function sendLoanEnquiry(data: LoanEnquiryPayload): Promise<SendEmailResult> {
   const subject = `New Loan Enquiry - ${data.fullName.trim()}`;
@@ -66,8 +77,54 @@ export async function sendLoanEnquiry(data: LoanEnquiryPayload): Promise<SendEma
   const formattedPhone = cleanPhoneDigits.length === 10
     ? `+91 ${cleanPhoneDigits}`
     : data.phone.trim();
+  const locationVal = (data.city || '').trim();
 
-  // Option A: EmailJS if environment credentials are provided
+  // Option A: Web3Forms (if access key is provided or standard Web3Forms integration)
+  const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || import.meta.env.VITE_WEB3FORMS_KEY;
+  if (web3FormsKey) {
+    try {
+      const wRes = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: web3FormsKey,
+          subject: subject,
+          from_name: 'Shree Services Pvt Ltd',
+          recipient: TARGET_EMAIL,
+          to_email: TARGET_EMAIL,
+          // Exact fields requested: Name, Mobile, Email, Product, Amount, Location
+          Name: data.fullName.trim(),
+          Mobile: formattedPhone,
+          Email: data.email.trim(),
+          Product: data.loanType,
+          Amount: formattedAmount,
+          Location: locationVal,
+          // Lowercase backups for standard parsers
+          name: data.fullName.trim(),
+          mobile: formattedPhone,
+          email: data.email.trim(),
+          product: data.loanType,
+          amount: formattedAmount,
+          location: locationVal,
+          message: data.message || `Loan application for ${data.loanType}`,
+        }),
+      });
+
+      if (wRes.ok) {
+        return {
+          success: true,
+          message: 'Thank you! Our team will contact you shortly.',
+        };
+      }
+    } catch (wErr) {
+      console.warn('Web3Forms attempt encountered an issue, proceeding to fallback:', wErr);
+    }
+  }
+
+  // Option B: EmailJS if environment credentials are provided
   const emailjsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
   const emailjsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
   const emailjsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -152,12 +209,28 @@ export async function sendLoanEnquiry(data: LoanEnquiryPayload): Promise<SendEma
         _replyto: data.email.trim(),
         _template: 'table',
         _captcha: 'false',
+        'Name': data.fullName.trim(),
+        'Mobile': formattedPhone,
+        'Email': data.email.trim(),
+        'Product': data.loanType,
+        'Amount': formattedAmount,
+        'Location': locationVal,
         'Applicant Name': data.fullName.trim(),
         'Mobile Number': formattedPhone,
         'Email Address': data.email.trim(),
         'Product / Service Requested': data.loanType,
         'Required Amount': formattedAmount,
-        'City / Location': data.city || 'Greater Noida West',
+        'City / Location': locationVal,
+        'PIN Code': data.pincode || 'N/A',
+        'State / Region': data.state || 'Delhi NCR / Uttar Pradesh',
+        'Specific Address / Landmark': data.addressLine || 'N/A',
+        'Consultation Mode': data.serviceMode === 'branch'
+          ? '🏢 In-Person Visit at Gaur City Mall Office'
+          : data.serviceMode === 'doorstep'
+          ? '🚗 Doorstep Document Pickup (Delhi NCR)'
+          : '💻 Digital / Online Sanction',
+        'Branch Desk': data.branchPreference || 'Unit 7126, 7th Floor, Gaur City Mall, Greater Noida West',
+        'Additional Remarks': data.message || 'Direct Bank Sanction Request from Website',
         'Application Date': new Date().toLocaleString('en-IN', {
           timeZone: 'Asia/Kolkata',
           dateStyle: 'full',
