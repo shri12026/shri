@@ -296,7 +296,7 @@ export const ServicesHubPage: React.FC<ServicesHubPageProps> = ({ onOpenApplyMod
               Start Your Success Journey With Shree Services Today!
             </h3>
             <p className="text-xs sm:text-sm text-emerald-100 max-w-2xl">
-              Visit our office at 7126, 7th Floor, Gaur City Mall, Greater Noida West or connect directly via Call / WhatsApp.
+              Visit our office at Gaur City Mall, Greater Noida West or connect directly via Call / WhatsApp.
             </p>
           </div>
 

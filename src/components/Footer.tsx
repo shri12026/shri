@@ -193,16 +193,21 @@ export const Footer: React.FC<FooterProps> = ({ onOpenApplyModal }) => {
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#E5A93C] shrink-0 mt-0.5" />
                 <span>
-                  7126, 7th Floor, Office Space, Gaur City Mall, Sector-IV, Greater Noida West, 201318
+                  Gaur City Mall, Sector-IV, Greater Noida West, 201318
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-[#E5A93C] shrink-0 mt-0.5" />
-                <div>
-                  <a href="tel:+919548634988" className="hover:text-white block font-mono font-semibold">
-                    +91 95486 34988
-                  </a>
-                  <span className="text-[10px] text-amber-300">Call / WhatsApp Support</span>
+                <div className="space-y-1">
+                  <div className="flex flex-col gap-0.5">
+                    <a href="tel:+919548634988" className="hover:text-white block font-mono font-semibold">
+                      +91 95486 34988
+                    </a>
+                    <a href="tel:+917838289636" className="hover:text-white block font-mono font-semibold">
+                      +91 78382 89636
+                    </a>
+                  </div>
+                  <span className="text-[10px] text-amber-300 block">Call / WhatsApp Support</span>
                 </div>
               </div>
             </div>

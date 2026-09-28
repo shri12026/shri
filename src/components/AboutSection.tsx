@@ -109,7 +109,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenApplyModal }) 
               <MapPin className="w-5 h-5 text-[#0A1C44] shrink-0 mt-0.5" />
               <div>
                 <span className="font-semibold text-[#0A1C44]">Corporate Office: </span>
-                7126, 7th Floor, Office Space, Gaur City Mall, Sector-IV, Greater Noida West, 201318
+                Gaur City Mall, Sector-IV, Greater Noida West, 201318
               </div>
             </div>
 

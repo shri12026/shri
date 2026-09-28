@@ -142,7 +142,7 @@ export const ContactPage: React.FC = () => {
                   <MapPin className="w-5 h-5 text-[#E5A93C] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-slate-900 block">Registered Office:</span>
-                    <span>7126, 7th Floor, Office Space, Gaur City Mall, Sector-IV, Greater Noida West, Uttar Pradesh - 201318</span>
+                    <span>Gaur City Mall, Sector-IV, Greater Noida West, Uttar Pradesh - 201318</span>
                   </div>
                 </div>
 
@@ -204,7 +204,7 @@ export const ContactPage: React.FC = () => {
               <p className="leading-relaxed">
                 • <strong>From Noida Electronic City Metro (Blue Line):</strong> 10-12 minutes by auto or cab via Gaur Chowk (Kisan Chowk).<br />
                 • <strong>From Sector 52 Noida Metro:</strong> Approx 15 minutes drive.<br />
-                • <strong>Parking:</strong> Ample underground multi-level parking available inside Gaur City Mall. Take Tower / Office Lift to 7th Floor, Unit 7126.
+                • <strong>Parking:</strong> Ample underground multi-level parking available inside Gaur City Mall.
               </p>
             </div>
 

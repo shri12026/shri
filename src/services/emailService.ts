@@ -229,7 +229,7 @@ export async function sendLoanEnquiry(data: LoanEnquiryPayload): Promise<SendEma
           : data.serviceMode === 'doorstep'
           ? '🚗 Doorstep Document Pickup (Delhi NCR)'
           : '💻 Digital / Online Sanction',
-        'Branch Desk': data.branchPreference || 'Unit 7126, 7th Floor, Gaur City Mall, Greater Noida West',
+        'Branch Desk': data.branchPreference || 'Gaur City Mall, Greater Noida West',
         'Additional Remarks': data.message || 'Direct Bank Sanction Request from Website',
         'Application Date': new Date().toLocaleString('en-IN', {
           timeZone: 'Asia/Kolkata',

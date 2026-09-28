@@ -44,7 +44,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     state: 'Uttar Pradesh (Delhi NCR)',
     addressLine: '',
     serviceMode: 'branch',
-    branchPreference: 'Gaur City Mall HQ (7th Floor, Sector-4)',
+    branchPreference: 'Gaur City Mall (Sector-4, Greater Noida West)',
     message: '',
   });
 
@@ -136,7 +136,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         state: 'Uttar Pradesh (Delhi NCR)',
         addressLine: '',
         serviceMode: 'branch',
-        branchPreference: 'Gaur City Mall HQ (7th Floor, Sector-4)',
+        branchPreference: 'Gaur City Mall (Sector-4, Greater Noida West)',
         message: '',
       });
 
@@ -225,7 +225,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         <span className="text-slate-400 block text-[10px]">Consultation Mode & Location:</span>
                         <span className="font-semibold text-[#0A1C44] block">
                           {submittedSnapshot.serviceMode === 'branch'
-                            ? '🏢 In-Person Visit at Gaur City Mall Office (7th Floor)'
+                            ? '🏢 In-Person Visit at Gaur City Mall Office'
                             : submittedSnapshot.serviceMode === 'doorstep'
                             ? '🚗 Doorstep Document Pickup (Delhi NCR)'
                             : '💻 100% Digital / Online Sanction'}
@@ -260,7 +260,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                         state: 'Uttar Pradesh (Delhi NCR)',
                         addressLine: '',
                         serviceMode: 'branch',
-                        branchPreference: 'Gaur City Mall HQ (7th Floor, Sector-4)',
+                        branchPreference: 'Gaur City Mall (Sector-4, Greater Noida West)',
                         message: '',
                       });
                     }}
@@ -509,7 +509,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                           <span className="font-semibold text-slate-900">Meeting / Branch Preference: </span>
                           <span className="text-slate-600">
                             {formData.serviceMode === 'branch'
-                              ? '🏢 In-Person at Gaur City Mall (7th Floor)'
+                              ? '🏢 In-Person at Gaur City Mall'
                               : formData.serviceMode === 'doorstep'
                               ? '🚗 Doorstep Visit'
                               : '💻 100% Digital'} · {formData.city}
@@ -603,7 +603,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                               Visit Gaur City Office
                             </div>
                             <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                              Unit 7126, 7th Floor, Gaur City Mall
+                              Gaur City Mall, Greater Noida West
                             </div>
                           </div>
                         </div>
@@ -759,7 +759,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       </div>
                       <div className="text-slate-700 space-y-1">
                         <p>
-                          <strong>Address:</strong> Unit 7126, 7th Floor, Office Space, Gaur City Mall, Sector-IV, Greater Noida West, UP 201318
+                          <strong>Address:</strong> Gaur City Mall, Sector-IV, Greater Noida West, UP 201318
                         </p>
                         <p>
                           <strong>Timing:</strong> Monday to Saturday: 9:30 AM – 7:30 PM (Sunday by Prior Appointment)
@@ -845,7 +845,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <MapPin className="w-5 h-5 text-[#E5A93C] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-white block">Corporate Office:</span>
-                  7126, 7th Floor, Office Space, Gaur City Mall, Sector-IV, Greater Noida West, Uttar Pradesh 201318
+                  Gaur City Mall, Sector-IV, Greater Noida West, Uttar Pradesh 201318
                 </div>
               </div>
 

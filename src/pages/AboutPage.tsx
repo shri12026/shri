@@ -254,7 +254,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenApplyModal }) => {
               Visit Our Branch Office for Face-to-Face Guidance
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Located on the 7th Floor of Gaur City Mall (Sector-IV, Greater Noida West). Our senior loan officers are available Monday through Saturday to review your documents and provide immediate sanction feasibility reports.
+              Located in Gaur City Mall (Sector-IV, Greater Noida West). Our senior loan officers are available Monday through Saturday to review your documents and provide immediate sanction feasibility reports.
             </p>
             <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-amber-300">
               <span>📞 +91 95486 34988</span>

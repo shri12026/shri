@@ -228,7 +228,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({
             )}
 
             <div className="p-3 rounded-xl bg-[#0A1C44]/5 text-xs text-[#0A1C44] font-medium border border-[#0A1C44]/15">
-              Direct Helpline: +91 95486 34988 · Office: 7th Floor, Gaur City Mall, Greater Noida West
+              Direct Helpline: +91 95486 34988 · Office: Gaur City Mall, Greater Noida West
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
