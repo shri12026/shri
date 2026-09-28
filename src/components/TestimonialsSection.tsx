@@ -94,7 +94,7 @@ export const TestimonialsSection: React.FC = () => {
                 <div className="flex items-center gap-3 mb-4">
                   <img
                     src={rev.avatar}
-                    alt={rev.name}
+                    alt={`${rev.name} - Verified Client Review`}
                     className="w-11 h-11 rounded-full object-cover border border-neutral-200"
                     referrerPolicy="no-referrer"
                   />

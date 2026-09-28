@@ -38,7 +38,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenApplyModal }) =>
             {/* Main Headline */}
             <div className="space-y-3">
               <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-extrabold text-[#111827] leading-[1.08] tracking-tight">
-                Experts At Getting You Approved
+                Home Loan, Business Loan &amp; Finance in Delhi NCR
               </h1>
               <p className="text-base sm:text-lg text-neutral-700 max-w-xl font-normal leading-relaxed">
                 Whether you're self-employed, looking for business capital, need a lower interest balance transfer, or face unique credit challenges — we make loans and financial approvals simple and guide you every step of the way.
